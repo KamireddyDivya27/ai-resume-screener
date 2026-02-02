@@ -3,6 +3,9 @@ import re
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.pagesizes import A4
 
 nltk.download('stopwords')
 nltk.download('wordnet')
@@ -29,3 +32,25 @@ def extract_experience(text):
     if matches:
         return max(map(int, matches))
     return 0
+
+# 📄 PDF REPORT
+def generate_pdf_report(name, score, skill_score, exp, role, matched, missing):
+    file_path = f"{name}_report.pdf"
+
+    styles = getSampleStyleSheet()
+    story = []
+
+    story.append(Paragraph(f"<b>Candidate Report: {name}</b>", styles['Title']))
+    story.append(Spacer(1, 12))
+    story.append(Paragraph(f"Match Score: {round(score*100,2)}%", styles['Normal']))
+    story.append(Paragraph(f"Skill Match: {round(skill_score*100,2)}%", styles['Normal']))
+    story.append(Paragraph(f"Experience: {exp} years", styles['Normal']))
+    story.append(Paragraph(f"Role Type: {role}", styles['Normal']))
+    story.append(Spacer(1, 12))
+    story.append(Paragraph(f"Matched Skills: {', '.join(matched)}", styles['Normal']))
+    story.append(Paragraph(f"Missing Skills: {', '.join(missing)}", styles['Normal']))
+
+    doc = SimpleDocTemplate(file_path, pagesize=A4)
+    doc.build(story)
+
+    return file_path
